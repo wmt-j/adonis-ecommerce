@@ -19,6 +19,9 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import './routes/product'
+
+//mongodb connects after first request is received.
 
 Route.get('/', async () => {
   return { hello: 'world' }
