@@ -1,7 +1,9 @@
+import { IUser } from "App/Interfaces/schemaInterfaces"
 import mongoose from "mongoose"
-import Role from "./RoleModel"
+import bcrypt from 'bcrypt'
+import CustomException from 'App/Exceptions/CustomException'
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema<IUser>({
     name: {
         type: String,
         trim: true,
@@ -26,9 +28,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    // role: {
-    //     type: Role
-    // },
+    role: {
+        type: mongoose.Types.ObjectId,
+        ref: "Role"
+    },
     order_id: {
         type: mongoose.Types.ObjectId,
         ref: 'Order'
@@ -36,8 +39,16 @@ const userSchema = new mongoose.Schema({
     phone: Number,
     address: {
         type: String,
-        required: true
+        trim: true
     }
+})
+
+userSchema.pre('save', async function (next) {
+    if (this.password)
+        this.password = await bcrypt.hash(this.password, 12)
+    this.password_confirm = ""
+
+    next()
 })
 
 const User = mongoose.model('User', userSchema)

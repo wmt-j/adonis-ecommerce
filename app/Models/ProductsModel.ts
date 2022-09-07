@@ -1,7 +1,7 @@
+import { IProduct } from "App/Interfaces/schemaInterfaces"
 import mongoose from "mongoose"
-import Category from "./CategoryModel"
 
-const productSchema = new mongoose.Schema({
+const productSchema = new mongoose.Schema<IProduct>({
     name: {
         type: String,
         trim: true,
@@ -23,9 +23,13 @@ const productSchema = new mongoose.Schema({
     seller: {
         type: mongoose.Types.ObjectId,
         ref: 'User',
-        // required: true
+        required: true
     },
-    category: Category
+    category: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    }
 })
 
 const Product = mongoose.model('Product', productSchema)

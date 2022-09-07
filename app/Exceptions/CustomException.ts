@@ -21,6 +21,9 @@ function handle(message: string, ctx: HttpContextContract, status?: number | und
     else if (message.includes("E11000")) {
         return ctx.response.status(status || 400).send({ "error": code || "" + " Duplicate values not allowed" })
     }
+    else if (message.includes("Invalid credentials")) {
+        return ctx.response.status(status || 400).send({ "error": code || "" + message })
+    }
 }
 
 export default class MongooseErrorException extends Exception {

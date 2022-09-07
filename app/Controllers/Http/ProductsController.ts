@@ -1,5 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import CustomException from 'App/Exceptions/CustomException'
+import Category from 'App/Models/CategoryModel'
 import Product from 'App/Models/ProductsModel'
 
 export default class ProductsController {
@@ -10,8 +11,13 @@ export default class ProductsController {
 
     public async store(ctx: HttpContextContract) {
         try {
-            const { name, price, description, discount } = ctx.request.body()
-            const newProduct = await Product.create({ name, price, description, discount })
+            const { name, price, description, discount, category, seller } = ctx.request.body()
+            const productCategory = await Category.findOne({ name: category })
+            let newProductCategory = productCategory
+            if (!productCategory) {
+                newProductCategory = await Category.create({ name: category })
+            }
+            const newProduct = await Product.create({ name, price, description, discount, category: newProductCategory?.id, seller })
             return ctx.response.created(newProduct)
         } catch (error) {
             throw new CustomException(error.message, ctx)
