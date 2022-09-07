@@ -2,13 +2,10 @@ import mongoose from "mongoose"
 
 const reviewSchema = new mongoose.Schema({
     rating: {
-        type: Number,
-        min: 0,
-        max: 5
+        type: Number
     },
     body: {
-        type: String,
-        maxLength: 100
+        type: String
     },
     product_id: {
         type: mongoose.Types.ObjectId,

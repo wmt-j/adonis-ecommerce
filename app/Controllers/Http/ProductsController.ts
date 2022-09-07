@@ -4,9 +4,13 @@ import Category from 'App/Models/CategoryModel'
 import Product from 'App/Models/ProductsModel'
 
 export default class ProductsController {
-    public async index({ }: HttpContextContract) {
-        const products = await Product.find()
-        return products
+    public async index(ctx: HttpContextContract) {
+        try {
+            const products = await Product.find()
+            return products
+        } catch (error) {
+            throw new CustomException(error.message || error, ctx)
+        }
     }
 
     public async store(ctx: HttpContextContract) {
@@ -20,7 +24,7 @@ export default class ProductsController {
             const newProduct = await Product.create({ name, price, description, discount, category: newProductCategory?.id, seller })
             return ctx.response.created(newProduct)
         } catch (error) {
-            throw new CustomException(error.message, ctx)
+            throw new CustomException(error.message || error, ctx)
         }
     }
 
@@ -30,7 +34,7 @@ export default class ProductsController {
             const product = await Product.findById(id)
             return ctx.response.ok(product)
         } catch (error) {
-            throw new CustomException(error.message, ctx)
+            throw new CustomException(error.message || error, ctx)
         }
     }
 
@@ -42,7 +46,7 @@ export default class ProductsController {
             console.log(updatedProduct)
             return ctx.response.created(updatedProduct)
         } catch (error) {
-            throw new CustomException(error.message, ctx)
+            throw new CustomException(error.message || error, ctx)
         }
     }
 
@@ -52,7 +56,7 @@ export default class ProductsController {
             await Product.findByIdAndDelete(id)
             return ctx.response.noContent()
         } catch (error) {
-            throw new CustomException(error.message, ctx)
+            throw new CustomException(error.message || error, ctx)
         }
     }
 }

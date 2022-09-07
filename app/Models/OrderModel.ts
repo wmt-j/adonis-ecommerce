@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const reviewSchema = new mongoose.Schema({
+const orderSchema = new mongoose.Schema({
     total: {
         type: Number,
         min: 0
@@ -19,6 +19,6 @@ const reviewSchema = new mongoose.Schema({
     }
 })
 
-const Review = mongoose.model('Review', reviewSchema)
+const Order = mongoose.model('Order', orderSchema)
 
-export default Review
+export default Order

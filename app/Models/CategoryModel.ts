@@ -2,7 +2,10 @@ import mongoose from "mongoose"
 import slugify from "slugify"
 
 const categorySchema = new mongoose.Schema({
-    name: String
+    name: {
+        type: String,
+        unique: true
+    }
 })
 
 categorySchema.pre('save', function (next) {
@@ -14,5 +17,3 @@ categorySchema.pre('save', function (next) {
 const Category = mongoose.model('Category', categorySchema)
 
 export default Category
-
-export { categorySchema }

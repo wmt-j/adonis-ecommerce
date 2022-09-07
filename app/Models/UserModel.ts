@@ -1,7 +1,6 @@
 import { IUser } from "App/Interfaces/schemaInterfaces"
 import mongoose from "mongoose"
 import bcrypt from 'bcrypt'
-import CustomException from 'App/Exceptions/CustomException'
 
 const userSchema = new mongoose.Schema<IUser>({
     name: {
