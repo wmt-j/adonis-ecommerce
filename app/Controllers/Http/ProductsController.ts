@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import CustomException from 'App/Exceptions/CustomException'
 import Product from 'App/Models/ProductsModel'
 
 export default class ProductsController {
@@ -7,28 +8,45 @@ export default class ProductsController {
         return products
     }
 
-    public async store({ request, response }: HttpContextContract) {
-        const { name, price, description, discount } = request.body()
-        const newProduct = await Product.create({ name, price, description, discount })
-        return response.created(newProduct)
+    public async store(ctx: HttpContextContract) {
+        try {
+            const { name, price, description, discount } = ctx.request.body()
+            const newProduct = await Product.create({ name, price, description, discount })
+            return ctx.response.created(newProduct)
+        } catch (error) {
+            throw new CustomException(error.message, ctx)
+        }
     }
 
-    public async show({ response, params }: HttpContextContract) {
-        const { id } = params
-        const product = await Product.findById(id)
-        return response.ok(product)
+    public async show(ctx: HttpContextContract) {
+        try {
+            const { id } = ctx.params
+            const product = await Product.findById(id)
+            return ctx.response.ok(product)
+        } catch (error) {
+            throw new CustomException(error.message, ctx)
+        }
     }
 
-    public async update({ params, request, response }: HttpContextContract) {
-        const { id } = params
-        const { name, price, description, discount } = request.body()
-        const updatedProduct = await Product.findByIdAndUpdate(id, { name, price, description, discount }, { new: true, runValidators: true })
-        return response.created(updatedProduct)
+    public async update(ctx: HttpContextContract) {
+        try {
+            const { id } = ctx.params
+            const { name, price, description, discount } = ctx.request.body()
+            const updatedProduct = await Product.findByIdAndUpdate(id, { name, price, description, discount }, { new: true, runValidators: true })
+            console.log(updatedProduct)
+            return ctx.response.created(updatedProduct)
+        } catch (error) {
+            throw new CustomException(error.message, ctx)
+        }
     }
 
-    public async destroy({ params, response }: HttpContextContract) {
-        const { id } = params
-        await Product.findByIdAndDelete(id)
-        return response.noContent()
+    public async destroy(ctx: HttpContextContract) {
+        try {
+            const { id } = ctx.params
+            await Product.findByIdAndDelete(id)
+            return ctx.response.noContent()
+        } catch (error) {
+            throw new CustomException(error.message, ctx)
+        }
     }
 }

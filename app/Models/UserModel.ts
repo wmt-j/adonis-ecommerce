@@ -26,9 +26,9 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    role: {
-        type: Role
-    },
+    // role: {
+    //     type: Role
+    // },
     order_id: {
         type: mongoose.Types.ObjectId,
         ref: 'Order'

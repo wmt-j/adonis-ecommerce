@@ -20,6 +20,7 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 import './routes/product'
+import './routes/user'
 
 //mongodb connects after first request is received.
 
