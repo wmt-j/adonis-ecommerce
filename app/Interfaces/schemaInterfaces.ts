@@ -21,3 +21,30 @@ export interface IProduct {
     seller?: mongoose.Types.ObjectId
     category?: mongoose.Types.ObjectId
 }
+
+export interface ICategory {
+    name?: string
+}
+
+export interface IRole {
+    name?: string
+}
+
+export interface IOrder {
+    total?: number
+    status?: string
+    order_detail_id?: mongoose.Types.ObjectId
+    user_id?: mongoose.Types.ObjectId
+}
+
+export interface IOrderDetail {
+    quantity?: string
+    product_id?: mongoose.Types.ObjectId
+}
+
+export interface IReview {
+    rating?: number,
+    body?: string,
+    product_id?: mongoose.Types.ObjectId
+    user_id?: mongoose.Types.ObjectId
+}

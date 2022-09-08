@@ -1,7 +1,8 @@
+import { ICategory } from "App/Interfaces/schemaInterfaces"
 import mongoose from "mongoose"
 import slugify from "slugify"
 
-const categorySchema = new mongoose.Schema({
+const categorySchema = new mongoose.Schema<ICategory>({
     name: {
         type: String,
         unique: true

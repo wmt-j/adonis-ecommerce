@@ -21,8 +21,11 @@ function handle(message: string, ctx: HttpContextContract, status?: number | und
     else if (message.includes("E11000")) {
         return ctx.response.status(status || 400).send({ "error": code || "" + " Duplicate values not allowed" })
     }
-    else if (message.includes("Invalid credentials") || message.includes("Passwords do not match") || message.includes("validation failed") || message.includes("Signin required")) {
+    else if (message.includes("Invalid") || message.includes("Passwords do not match") || message.includes("validation failed") || message.includes("Signin required") || message.includes("E_VALIDATION_FAILURE") || message.includes("is required")) {
         return ctx.response.status(status || 400).send({ "error": code || "" + message })
+    }
+    else {
+        return ctx.response.status(500).send({ "error": "Something went wrong!" })
     }
 }
 

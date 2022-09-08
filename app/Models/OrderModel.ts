@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
+import { IOrder } from "App/Interfaces/schemaInterfaces"
 
-const orderSchema = new mongoose.Schema({
+const orderSchema = new mongoose.Schema<IOrder>({
     total: {
         type: Number,
         min: 0

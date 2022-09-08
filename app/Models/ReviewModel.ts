@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
+import { IReview } from "App/Interfaces/schemaInterfaces"
 
-const reviewSchema = new mongoose.Schema({
+const reviewSchema = new mongoose.Schema<IReview>({
     rating: {
         type: Number
     },

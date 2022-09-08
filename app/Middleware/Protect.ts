@@ -23,7 +23,7 @@ export default class Protect {
       const token = ctx.request.headers().authorization?.split('Bearer ')[1]
       if (token) {
         const data = await this.jwtVerifyPromise(token, Env.get('JWT_SECRET')) as IUser
-        ctx.user = { id: data.id, email: data.email }
+        ctx.user = { id: data.id, email: data.email, role: data.role }
         return await next()
       }
       throw new Error("Signin required")

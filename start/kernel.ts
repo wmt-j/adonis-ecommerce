@@ -42,5 +42,6 @@ Server.middleware.register([
 |
 */
 Server.middleware.registerNamed({
-    protect: () => import('App/Middleware/Protect')
+    protect: () => import('App/Middleware/Protect'),
+    restrictTo: () => import('App/Middleware/RestrictTo')
 })

@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
+import { IOrderDetail } from "App/Interfaces/schemaInterfaces"
 
-const orderDetailSchema = new mongoose.Schema({
+const orderDetailSchema = new mongoose.Schema<IOrderDetail>({
     quantity: {
         type: Number,
         default: 1,
