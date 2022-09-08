@@ -7,14 +7,22 @@ import CustomException from 'App/Exceptions/CustomException'
 import { IUser } from 'App/Interfaces/schemaInterfaces'
 
 export default class AuthController {
+    private jwtSignPromise(user: IUser) {
+        return new Promise((resolve, reject) => {
+            jwt.sign({ id: user.id, email: user.email }, Env.get('JWT_SECRET'), function (err: Error, token: string) {
+                if (err) { return reject(err) }
+                return resolve(token)
+            })
+        })
+    }
     private async signToken(user: IUser, ctx: HttpContextContract) {
         ctx.user = { id: user.id, email: user.email }   //we have to tell typescript about the new object on ctx, done in file contracts/context.ts
-        return jwt.sign({ id: user.id, email: user.email }, Env.get('JWT_SECRET'))
+        return await this.jwtSignPromise(user)
     }
     public async signup(ctx: HttpContextContract) {
         try {
             const { name, email, password, password_confirm } = ctx.request.body()
-            if (password !== password_confirm) throw new CustomException("Passwords do not match", ctx)
+            if (password !== password_confirm) throw new Error("Passwords do not match")
             const newUser = await User.create({ name, email, password, password_confirm })
             const token = await this.signToken(newUser, ctx)
             return ctx.response.created({ user: newUser, token })
@@ -27,8 +35,8 @@ export default class AuthController {
         try {
             const { email, password } = ctx.request.body()
             const user = await User.findOne({ email })
-            if (!user) throw new CustomException("Invalid credentials", ctx)
-            if (!user.password || !await bcrypt.compare(password, user.password)) throw new CustomException("Invalid credentials", ctx)
+            if (!user) throw new Error("Invalid credentials")
+            if (!user.password || !await bcrypt.compare(password, user.password)) throw new Error("Invalid credentials")
             const token = await this.signToken(user, ctx)
             return ctx.response.created({ user: user, token })
         } catch (error) {

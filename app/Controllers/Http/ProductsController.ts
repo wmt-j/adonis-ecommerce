@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import CustomException from 'App/Exceptions/CustomException'
 import Category from 'App/Models/CategoryModel'
 import Product from 'App/Models/ProductsModel'
+import slugify from 'slugify'
 
 export default class ProductsController {
     public async index(ctx: HttpContextContract) {
@@ -15,12 +16,13 @@ export default class ProductsController {
 
     public async store(ctx: HttpContextContract) {
         try {
-            const { name, price, description, discount, category, seller } = ctx.request.body()
-            const productCategory = await Category.findOne({ name: category })
+            const { name, price, description, discount, category } = ctx.request.body()
+            const productCategory = await Category.findOne({ name: slugify(category) })
             let newProductCategory = productCategory
             if (!productCategory) {
                 newProductCategory = await Category.create({ name: category })
             }
+            const seller = ctx.user?.id
             const newProduct = await Product.create({ name, price, description, discount, category: newProductCategory?.id, seller })
             return ctx.response.created(newProduct)
         } catch (error) {

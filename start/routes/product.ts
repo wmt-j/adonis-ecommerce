@@ -1,7 +1,7 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.get('/product', 'ProductsController.index')
-Route.post('/product', 'ProductsController.store')
+Route.post('/product', 'ProductsController.store').middleware('protect')
 Route.get('/product/:id', 'ProductsController.show')
-Route.patch('/product/:id', 'ProductsController.update')
-Route.delete('/product/:id', 'ProductsController.destroy')
+Route.patch('/product/:id', 'ProductsController.update').middleware('protect')
+Route.delete('/product/:id', 'ProductsController.destroy').middleware('protect')

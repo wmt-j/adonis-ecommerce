@@ -14,8 +14,9 @@ export default class ReviewsController {
 
     public async store(ctx: HttpContextContract) {
         try {
-            const { rating, body } = ctx.request.body()
-            const newReview = await Review.create({ rating, body })
+            const { rating, body, product_id } = ctx.request.body()
+            const user_id = ctx.user?.id
+            const newReview = await Review.create({ rating, body, product_id, user_id })
             return ctx.response.created(newReview)
         } catch (error) {
             throw new CustomException(error.message || error, ctx)
