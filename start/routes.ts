@@ -23,8 +23,11 @@ import './routes/product'
 import './routes/user'
 import './routes/auth'
 import './routes/review'
+import './routes/orderDetail'
+import './routes/order'
+import MongooseConnection from 'App/Middleware/MongooseConnection'
 
-//mongodb connects after first request is received.
+MongooseConnection.handle() //mongodb connects
 
 Route.get('/', async () => {
   return { hello: 'world' }

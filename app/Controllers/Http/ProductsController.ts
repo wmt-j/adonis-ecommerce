@@ -8,7 +8,7 @@ export default class ProductsController {
     public async index(ctx: HttpContextContract) {
         try {
             const products = await Product.find()
-            return products
+            ctx.response.ok(products)
         } catch (error) {
             throw new CustomException(error.message || error, ctx)
         }
@@ -45,7 +45,6 @@ export default class ProductsController {
             const { id } = ctx.params
             const { name, price, description, discount } = ctx.request.body()
             const updatedProduct = await Product.findByIdAndUpdate(id, { name, price, description, discount }, { new: true, runValidators: true })
-            console.log(updatedProduct)
             return ctx.response.created(updatedProduct)
         } catch (error) {
             throw new CustomException(error.message || error, ctx)

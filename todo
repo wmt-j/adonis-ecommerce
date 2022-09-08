@@ -1,3 +1,4 @@
 Request validation.
-User restrictions.
 Make custom codes for error handling.
+Throw error when document not found.
+Extend error handling.

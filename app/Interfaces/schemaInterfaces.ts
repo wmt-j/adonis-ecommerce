@@ -33,13 +33,14 @@ export interface IRole {
 export interface IOrder {
     total?: number
     status?: string
-    order_detail_id?: mongoose.Types.ObjectId
     user_id?: mongoose.Types.ObjectId
 }
 
 export interface IOrderDetail {
     quantity?: string
     product_id?: mongoose.Types.ObjectId
+    user_id?: mongoose.Types.ObjectId
+    order_id?: mongoose.Types.ObjectId
 }
 
 export interface IReview {
