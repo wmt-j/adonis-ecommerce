@@ -24,6 +24,9 @@ const orderSchema = new mongoose.Schema<IOrder>({
     user_id: {
         type: mongoose.Types.ObjectId,
         ref: 'User'
+    },
+    ordered_at: {
+        type: Date
     }
 }, {
     toJSON: {

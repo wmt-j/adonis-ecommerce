@@ -3,4 +3,4 @@ Make custom codes for error handling.
 Throw error when document not found.
 Extend error handling.
 Date, time fields in order model.
-Validate if no product.
+Validate if no document related to provided id.
