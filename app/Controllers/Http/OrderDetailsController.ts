@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import OrderDetail from 'App/Models/OrderDetailModel'
 import CustomException from 'App/Exceptions/CustomException'
+import Order from 'App/Models/OrderModel'
 
 export default class OrderDetailsController {
     public async index(ctx: HttpContextContract) {
@@ -15,8 +16,11 @@ export default class OrderDetailsController {
     public async store(ctx: HttpContextContract) {
         try {
             const { quantity, product_id } = ctx.request.body()
-
-            const newOrderDetail = await OrderDetail.create({ quantity, product_id, user_id: ctx.user?.id })
+            let pendingOrder = await Order.findOne({ status: "pending" })
+            if (!pendingOrder) {
+                pendingOrder = await Order.create({ user_id: ctx.user?.id })
+            }
+            const newOrderDetail = await OrderDetail.create({ quantity, product_id, user_id: ctx.user?.id, order_id: pendingOrder?.id })
             ctx.response.created(newOrderDetail)
         } catch (error) {
             throw new CustomException(error.message || error, ctx)

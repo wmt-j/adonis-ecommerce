@@ -31,10 +31,6 @@ const userSchema = new mongoose.Schema<IUser>({
         type: mongoose.Types.ObjectId,
         ref: "Role"
     },
-    order_id: {
-        type: mongoose.Types.ObjectId,
-        ref: 'Order'
-    },
     phone: Number,
     address: {
         type: String,
