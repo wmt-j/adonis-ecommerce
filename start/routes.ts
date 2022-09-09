@@ -25,9 +25,8 @@ import './routes/auth'
 import './routes/review'
 import './routes/orderDetail'
 import './routes/order'
-import MongooseConnection from 'App/Middleware/MongooseConnection'
 
-MongooseConnection.handle() //mongodb connects
+//Mongodb connects in custom created preloaded file, start/MongooseConnection.ts
 
 Route.get('/', async () => {
   return { hello: 'world' }

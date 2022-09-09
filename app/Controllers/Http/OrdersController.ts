@@ -8,7 +8,7 @@ import { IOrderDetail } from 'App/Interfaces/schemaInterfaces'
 export default class OrdersController {
     public async index(ctx: HttpContextContract) {
         try {
-            const orders = await Order.find().populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' }, select: 'quantity product_id' })
+            const orders = await Order.find().sort({ ordered_at: -1 }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' }, select: 'quantity product_id' })
             ctx.response.ok(orders)
         } catch (error) {
             throw new CustomException(error.message || error, ctx)
@@ -60,7 +60,7 @@ export default class OrdersController {
     public async destroy(ctx: HttpContextContract) {
         try {
             const { id } = ctx.params
-            await Order.findByIdAndDelete(id)
+            await Order.findOneAndDelete({ _id: id, status: { $ne: 'delivered' } })
             ctx.response.noContent()
         } catch (error) {
             throw new CustomException(error.message || error, ctx)
@@ -70,8 +70,11 @@ export default class OrdersController {
     public async placeOrder(ctx: HttpContextContract) {
         try {
             const { id } = ctx.params
-            const placed_order = await Order.findByIdAndUpdate(id, { status: "waiting", ordered_at: Date.now() }, { new: true, runValidators: true }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' }, select: 'quantity product_id' })
-            ctx.response.ok(placed_order)
+            const placedOrder = await Order.findOneAndUpdate({ _id: id, status: "pending" }, { status: "waiting", ordered_at: Date.now() }, { new: true }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' }, select: 'quantity product_id' })
+            if (!placedOrder) {
+                throw new Error("No pending orders.")
+            }
+            ctx.response.ok(placedOrder)
         } catch (error) {
             throw new CustomException(error.message || error, ctx)
         }

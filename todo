@@ -4,3 +4,9 @@ Throw error when document not found.
 Extend error handling.
 Date, time fields in order model.
 Validate if no document related to provided id.
+Show MY orders/order-details/reviews.
+
+Error codes:-
+1: custom thrown error
+2: system thrown, expected
+3: system thrown, unexpected

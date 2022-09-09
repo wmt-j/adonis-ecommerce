@@ -14,15 +14,15 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 |
 */
 
-function handle(message: string, ctx: HttpContextContract, status?: number | undefined, code?: string | undefined) {
+function handle(message: string, ctx: HttpContextContract, status?: number | undefined, code?: number | undefined) {
     if (message.includes("Cast to ObjectId failed")) {
-        return ctx.response.status(status || 404).send({ "error": code || "" + " Id not found!" })
+        return ctx.response.status(status || 404).send({ "error": (code || "") + " Id not found!" })
     }
     else if (message.includes("E11000")) {
-        return ctx.response.status(status || 400).send({ "error": code || "" + " Duplicate values not allowed" })
+        return ctx.response.status(status || 400).send({ "error": (code || "") + " Duplicate values not allowed" })
     }
-    else if (message.includes("Invalid") || message.includes("Passwords do not match") || message.includes("validation failed") || message.includes("Signin required") || message.includes("E_VALIDATION_FAILURE") || message.includes("is required") || message.includes("Access denied")) {
-        return ctx.response.status(status || 400).send({ "error": code || "" + message })
+    else if (code === 1) {
+        return ctx.response.status(status || 400).send({ "error": code + " " + message })
     }
     else {
         return ctx.response.status(500).send({ "error": "Something went wrong!" })
@@ -30,8 +30,8 @@ function handle(message: string, ctx: HttpContextContract, status?: number | und
 }
 
 export default class MongooseErrorException extends Exception {
-    constructor(message: string, ctx: HttpContextContract, status?: number | undefined, code?: string | undefined) {
-        super(message, status, code)
+    constructor(message: string, ctx: HttpContextContract, status?: number | undefined, code?: number | undefined) {
+        super(message, status, <string><any>code)
         console.log(message)
         handle(message, ctx, status, code)
     }

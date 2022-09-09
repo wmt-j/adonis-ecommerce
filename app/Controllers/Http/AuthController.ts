@@ -37,9 +37,10 @@ export default class AuthController {
             const payload = await ctx.request.validate({
                 schema: newUserSchema,
                 messages: {
-                    required: 'This {{ field }} is required.',
+                    required: '{{ field }} is required.',
                     'password_confirm.confirmed': 'Passwords do not match.',
-                    'email.email': 'Invalid Email'
+                    'email.email': 'Invalid Email',
+                    'password.minLength': 'Password should be at least {{options.minLength}} character long.'
                 }
             })
             const userRole = await Role.findOne({ name: 'customer' })
@@ -48,10 +49,11 @@ export default class AuthController {
             const token = await this.signToken(newUser, ctx)
             return ctx.response.created({ user: newUser, token })
         } catch (error) {
+            if (error instanceof (CustomException)) return
             if (error.messages && error.messages.errors) {
-                error.message = error.messages.errors[0].message
+                throw new CustomException(error.messages.errors[0].message, ctx, 400, 2)
             }
-            throw new CustomException(error.message || error, ctx)
+            throw new CustomException(error.message || error, ctx, 500, 3)
         }
     }
 
@@ -74,15 +76,16 @@ export default class AuthController {
             })
             const { email, password } = payload
             const user = await User.findOne({ email })
-            if (!user) throw new Error("Invalid credentials")
-            if (!user.password || !await bcrypt.compare(password, user.password)) throw new Error("Invalid credentials")
+            if (!user) throw new CustomException("Invalid credentials", ctx, 401, 1)
+            if (!user.password || !await bcrypt.compare(password, user.password)) throw new CustomException("Invalid credentials", ctx, 401, 1)
             const token = await this.signToken(user, ctx)
             return ctx.response.created({ user: user, token })
         } catch (error) {
+            if (error instanceof (CustomException)) return
             if (error.messages && error.messages.errors) {
-                error.message = error.messages.errors[0].message
+                throw new CustomException(error.messages.errors[0].message, ctx, 400, 2)
             }
-            throw new CustomException(error.message || error, ctx)
+            throw new CustomException(error.message || error, ctx, 500, 3)
         }
     }
 }

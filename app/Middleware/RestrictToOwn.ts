@@ -5,6 +5,7 @@ import Review from 'App/Models/ReviewModel'
 import User from 'App/Models/UserModel'
 import OrderDetail from 'App/Models/OrderDetailModel'
 import Role from 'App/Models/RoleModel'
+import Order from 'App/Models/OrderModel'
 
 export default class RestrictToOwn {
   public async handle(ctx: HttpContextContract, next: () => Promise<void>) {
@@ -34,6 +35,12 @@ export default class RestrictToOwn {
     else if (route === 'order-detail') {
       const orderDetail = await OrderDetail.findById(id)
       if (orderDetail?.user_id?.toString() === ctx.user?.id) {
+        return await next()
+      }
+    }
+    else if (route === 'order') {
+      const order = await Order.findById(id)
+      if (order?.user_id?.toString() === ctx.user?.id) {
         return await next()
       }
     }
