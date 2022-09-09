@@ -11,16 +11,7 @@ const orderSchema = new mongoose.Schema<IOrder>({
     status: {
         type: String,
         enum: ["delivered", "pending", "shipped", "waiting"],
-        default: "pending",
-        validate: {
-            validator: async () => {
-                const count = await Order.countDocuments({ status: "pending" })
-                if (count > 0)
-                    return false
-                return true
-            },
-            message: "There can only be one pending order."
-        }
+        default: "pending"
     },
     user_id: {
         type: mongoose.Types.ObjectId,
@@ -49,6 +40,13 @@ orderSchema.pre('findOneAndDelete', async function (next) { //cascade to order_d
     for (let i = 0; i < order.order_details.length; i++) {
         await OrderDetail.findByIdAndDelete(order.order_details[i]._id)
     }
+    next()
+})
+
+orderSchema.pre('validate', async function (next) {
+    const count = await Order.countDocuments({ status: "pending", user_id: this?.user_id })
+    if (count > 0)
+        throw new Error("There can only be one pending order.")
     next()
 })
 

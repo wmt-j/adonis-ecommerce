@@ -15,7 +15,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 */
 
 function handle(message: string, ctx: HttpContextContract, status?: number | undefined, code?: number | undefined) {
-    if (code === 1) {
+    if (code === 1 || code === 2) {
         return ctx.response.status(status || 400).send({ "error": code + ": " + message })
     }
     else if (message.includes("Cast to ObjectId failed")) {
@@ -32,7 +32,6 @@ function handle(message: string, ctx: HttpContextContract, status?: number | und
 export default class MongooseErrorException extends Exception {
     constructor(message: string, ctx: HttpContextContract, status?: number | undefined, code?: number | undefined) {
         super(message, status, <string><any>code)
-        console.log(message)
         handle(message, ctx, status, code)
     }
 }

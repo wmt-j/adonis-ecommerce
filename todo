@@ -1,11 +1,11 @@
-Request validation.
-Validate if no document related to provided id.
-Throw error when document not found.
 Extend error handling.
 Show MY orders/order-details/reviews.
 Test all routes.
+Cascade on delete/on update.
+Check if document exists before relationship.
+Only use users with active:true.
 
 Error codes:-
 1: custom thrown error
-2: system thrown, expected
+2: system thrown, expected, adonis validation error
 3: system thrown, unexpected

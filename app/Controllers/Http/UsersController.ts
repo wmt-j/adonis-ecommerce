@@ -1,6 +1,8 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import CustomException from 'App/Exceptions/CustomException'
+import Order from 'App/Models/OrderModel'
+import Review from 'App/Models/ReviewModel'
 import Role from 'App/Models/RoleModel'
 import User from 'App/Models/UserModel'
 import errorHandler from 'App/utils/errorHandler'
@@ -97,11 +99,29 @@ export default class UsersController {
     public async destroy(ctx: HttpContextContract) {
         try {
             const { id } = ctx.params
-            await User.findByIdAndUpdate(id, { active: false })    //cascade to orders, products, order_details
+            await User.findByIdAndUpdate(id, { active: false })    //cascade to orders, products, order_details, reviews
             return ctx.response.noContent()
         } catch (error) {
             return errorHandler(error, ctx)
+        }
+    }
 
+    public async myOrders(ctx: HttpContextContract) {
+        try {
+            const myOrders = await Order.find({ user_id: ctx.user?.id }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' }, select: 'quantity product_id' })
+            ctx.response.ok(myOrders)
+        } catch (error) {
+            return errorHandler(error, ctx)
+        }
+
+    }
+
+    public async myReviews(ctx: HttpContextContract) {
+        try {
+            const myReviews = await Review.find({ user_id: ctx.user?.id })
+            ctx.response.ok(myReviews)
+        } catch (error) {
+            errorHandler(error, ctx)
         }
     }
 }

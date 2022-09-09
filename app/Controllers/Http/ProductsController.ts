@@ -31,7 +31,9 @@ export default class ProductsController {
                     required: '{{field}} is required.',
                     'name.maxLength': 'Name cannot exceed 50 characters.',
                     'description.maxLength': 'Name cannot exceed 500 characters.',
-                    'discount': 'Discount should be in the range of {{options.start}} to {{options.end}}'
+                    'discount': 'Discount should be in the range of {{options.start}} to {{options.end}}.',
+                    'discount.range': 'Discount should be between 0 and 100.',
+                    'price.range': 'Price should not be less than 0.'
                 }
             })
             const { name, price, description, discount, category } = payload
@@ -76,7 +78,9 @@ export default class ProductsController {
                     required: '{{field}} is required.',
                     'name.maxLength': 'Name cannot exceed 50 characters.',
                     'description.maxLength': 'Name cannot exceed 500 characters.',
-                    'discount': 'Discount should be in the range of {{options.start}} to {{options.end}}'
+                    'discount': 'Discount should be in the range of {{options.start}} to {{options.end}}.',
+                    'discount.range': 'Discount should be between 0 and 100.',
+                    'price.range': 'Price should not be less than 0.'
                 }
             })
             const { name, price, description, discount } = payload

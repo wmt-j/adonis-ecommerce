@@ -4,6 +4,7 @@ import CustomException from 'App/Exceptions/CustomException'
 import Order from 'App/Models/OrderModel'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import errorHandler from '../../utils/errorHandler'
+import OrdersController from './OrdersController'
 
 export default class OrderDetailsController {
     public async index(ctx: HttpContextContract) {
@@ -33,6 +34,7 @@ export default class OrderDetailsController {
             if (!pendingOrder) {
                 pendingOrder = await Order.create({ user_id: ctx.user?.id })
             }
+            await OrdersController.updateTotal(pendingOrder?.id, quantity, product_id, ctx)
             const newOrderDetail = await OrderDetail.create({ quantity, product_id, user_id: ctx.user?.id, order_id: pendingOrder?.id })
             ctx.response.created(newOrderDetail)
         } catch (error) {

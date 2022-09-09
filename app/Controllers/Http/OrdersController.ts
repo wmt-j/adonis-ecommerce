@@ -13,7 +13,6 @@ export default class OrdersController {
             ctx.response.ok(orders)
         } catch (error) {
             return errorHandler(error, ctx)
-
         }
     }
 
@@ -23,7 +22,10 @@ export default class OrdersController {
             let total = 0
             for (let i = 0; i < orderList.length; i++) {
                 const product = await Product.findById(orderList[i].product_id)
-                const priceEach = product?.price as number * (1 - (product?.discount as number / 100))
+                if (!product) {
+                    throw new CustomException("Given product not found!", ctx, 404, 1)
+                }
+                const priceEach = product.price as number * (1 - (product.discount as number / 100))
                 const productQuantity = orderList[i]!.quantity as number
                 total += priceEach as number * productQuantity
             }
@@ -35,7 +37,6 @@ export default class OrdersController {
             ctx.response.created(newOrder)
         } catch (error) {
             return errorHandler(error, ctx)
-
         }
     }
 
@@ -43,22 +44,23 @@ export default class OrdersController {
         try {
             const { id } = ctx.params
             const order = await Order.findById(id).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' } })
+            if (!order) {
+                throw new CustomException("No order found", ctx, 404, 1)
+            }
             ctx.response.created(order)
         } catch (error) {
             return errorHandler(error, ctx)
-
         }
     }
 
     public async update(ctx: HttpContextContract) {
         try {
             const { id } = ctx.params
-            const { total, status } = ctx.request.body()
-            const updatedOrder = await Order.findByIdAndUpdate(id, { total, status }, { new: true, runValidators: true })
+            const { status } = ctx.request.body()
+            const updatedOrder = await Order.findByIdAndUpdate(id, { status }, { new: true, runValidators: true })
             ctx.response.created(updatedOrder)
         } catch (error) {
             return errorHandler(error, ctx)
-
         }
     }
 
@@ -69,7 +71,6 @@ export default class OrdersController {
             ctx.response.noContent()
         } catch (error) {
             return errorHandler(error, ctx)
-
         }
     }
 
@@ -83,7 +84,15 @@ export default class OrdersController {
             ctx.response.ok(placedOrder)
         } catch (error) {
             return errorHandler(error, ctx)
-
         }
+    }
+
+    public static async updateTotal(order_id: string, quantity: number, product_id: string, ctx: HttpContextContract) {
+        const order = await Order.findById(order_id)
+        const product = await Product.findById(product_id)
+        if (!order || !product) throw new CustomException("Failed to add Product", ctx, 404, 1)
+        if (!order.total || !product.price) return
+        order.total += (product.price * (1 - (product.discount as number / 100))) * quantity
+        await order.save({ validateBeforeSave: false })
     }
 }

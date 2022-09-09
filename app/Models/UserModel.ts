@@ -1,6 +1,10 @@
 import { IUser } from "App/Interfaces/schemaInterfaces"
 import mongoose from "mongoose"
 import bcrypt from 'bcrypt'
+import Review from "./ReviewModel"
+import Order from "./OrderModel"
+import OrderDetail from "./OrderDetailModel"
+import Product from "./ProductsModel"
 
 const userSchema = new mongoose.Schema<IUser>({
     name: {
@@ -44,6 +48,26 @@ userSchema.pre('save', async function (next) {
     this.password_confirm = ""
 
     next()
+})
+
+userSchema.post('findOneAndUpdate', async function () {
+    try {
+        const updatedUser = await this.findOne().clone()
+        if (updatedUser.active === false) {
+            // await Review.deleteMany({ user_id: updatedUser.id })
+            // await Order.deleteMany({ user_id: updatedUser.id })
+            // await OrderDetail.deleteMany({ user_id: updatedUser.id })
+            // await Product.deleteMany({ seller: updatedUser.id })
+
+            await Promise.all([     //faster
+                Review.deleteMany({ user_id: updatedUser.id }),
+                Order.deleteMany({ user_id: updatedUser.id }),
+                OrderDetail.deleteMany({ user_id: updatedUser.id }),//delete these from Order  cascade
+                Product.deleteMany({ seller: updatedUser.id })
+            ])
+        }
+
+    } catch (error) { throw new Error(error) }
 })
 
 const User = mongoose.model('User', userSchema)
