@@ -3,7 +3,6 @@ import mongoose from "mongoose"
 import bcrypt from 'bcrypt'
 import Review from "./ReviewModel"
 import Order from "./OrderModel"
-import OrderDetail from "./OrderDetailModel"
 import Product from "./ProductsModel"
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -56,13 +55,11 @@ userSchema.post('findOneAndUpdate', async function () {
         if (updatedUser.active === false) {
             // await Review.deleteMany({ user_id: updatedUser.id })
             // await Order.deleteMany({ user_id: updatedUser.id })
-            // await OrderDetail.deleteMany({ user_id: updatedUser.id })
             // await Product.deleteMany({ seller: updatedUser.id })
 
             await Promise.all([     //faster
                 Review.deleteMany({ user_id: updatedUser.id }),
                 Order.deleteMany({ user_id: updatedUser.id }),
-                OrderDetail.deleteMany({ user_id: updatedUser.id }),//delete these from Order  cascade
                 Product.deleteMany({ seller: updatedUser.id })
             ])
         }

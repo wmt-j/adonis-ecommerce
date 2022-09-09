@@ -48,7 +48,7 @@ export default class RestrictToOwn {
       }
       throw new CustomException("Access denied", ctx, 401, 1)
     } catch (error) {
-      errorHandler(error, ctx)
+      return errorHandler(error, ctx)
     }
   }
 }

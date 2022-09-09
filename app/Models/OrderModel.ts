@@ -35,7 +35,8 @@ orderSchema.virtual('order_details', {
     foreignField: 'order_id'
 })
 
-orderSchema.pre('findOneAndDelete', async function (next) { //cascade to order_details
+orderSchema.pre(/delete/gi, async function (next) { //cascade to order_details
+    // @ts-ignore
     const order = await this.findOne().populate({ path: 'order_details', select: '_id' }).clone() //clone() to fix, query was already executed error
     for (let i = 0; i < order.order_details.length; i++) {
         await OrderDetail.findByIdAndDelete(order.order_details[i]._id)

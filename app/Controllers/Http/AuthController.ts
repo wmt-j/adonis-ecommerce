@@ -18,10 +18,12 @@ export default class AuthController {
             })
         })
     }
+
     private async signToken(user: IUser, ctx: HttpContextContract) {
         ctx.user = { id: user.id, email: user.email, role: user.role }   //we have to tell typescript about the new object on ctx, done in file contracts/context.ts
         return await this.jwtSignPromise(user)
     }
+
     public async signup(ctx: HttpContextContract) {
         try {
             const newUserSchema = schema.create({
@@ -72,11 +74,21 @@ export default class AuthController {
                 }
             })
             const { email, password } = payload
-            const user = await User.findOne({ email })
+            const user = await User.findOne({ email, active: true })
             if (!user) throw new CustomException("Invalid credentials", ctx, 401, 1)
             if (!user.password || !await bcrypt.compare(password, user.password)) throw new CustomException("Invalid credentials", ctx, 401, 1)
             const token = await this.signToken(user, ctx)
             return ctx.response.created({ user: user, token })
+        } catch (error) {
+            return errorHandler(error, ctx)
+        }
+    }
+
+    public async destroy(ctx: HttpContextContract) {
+        try {
+            const id = ctx.user?.id
+            await User.findByIdAndUpdate(id, { active: false })
+            return ctx.response.noContent()
         } catch (error) {
             return errorHandler(error, ctx)
         }

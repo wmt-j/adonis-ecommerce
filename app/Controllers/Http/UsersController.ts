@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import CustomException from 'App/Exceptions/CustomException'
+import OrderDetail from 'App/Models/OrderDetailModel'
 import Order from 'App/Models/OrderModel'
 import Review from 'App/Models/ReviewModel'
 import Role from 'App/Models/RoleModel'
@@ -123,5 +124,15 @@ export default class UsersController {
         } catch (error) {
             errorHandler(error, ctx)
         }
+    }
+
+    public async myOrderDetails(ctx: HttpContextContract) {
+        try {
+            const myOrderDetails = await OrderDetail.find({ user_id: ctx.user?.id }).populate('product_id')
+            ctx.response.ok(myOrderDetails)
+        } catch (error) {
+            return errorHandler(error, ctx)
+        }
+
     }
 }

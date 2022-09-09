@@ -1,5 +1,4 @@
 Extend error handling.
-Show MY orders/order-details/reviews.
 Test all routes.
 Cascade on delete/on update.
 Check if document exists before relationship.
