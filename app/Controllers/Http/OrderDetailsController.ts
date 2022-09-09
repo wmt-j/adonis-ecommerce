@@ -3,6 +3,7 @@ import OrderDetail from 'App/Models/OrderDetailModel'
 import CustomException from 'App/Exceptions/CustomException'
 import Order from 'App/Models/OrderModel'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import errorHandler from '../../utils/errorHandler'
 
 export default class OrderDetailsController {
     public async index(ctx: HttpContextContract) {
@@ -10,8 +11,7 @@ export default class OrderDetailsController {
             const orderDetails = await OrderDetail.find()
             ctx.response.ok(orderDetails)
         } catch (error) {
-            if (error instanceof (CustomException)) return
-            throw new CustomException(error.message || error, ctx, 500, 3)
+            return errorHandler(error, ctx)
         }
     }
 
@@ -36,10 +36,7 @@ export default class OrderDetailsController {
             const newOrderDetail = await OrderDetail.create({ quantity, product_id, user_id: ctx.user?.id, order_id: pendingOrder?.id })
             ctx.response.created(newOrderDetail)
         } catch (error) {
-            if (error.messages && error.messages.errors) {
-                throw new CustomException(error.messages.errors[0].message, ctx, 400, 2)
-            }
-            throw new CustomException(error.message || error, ctx, 500, 3)
+            return errorHandler(error, ctx)
         }
     }
 
@@ -50,8 +47,7 @@ export default class OrderDetailsController {
             if (!orderDetail) throw new CustomException("No order detail found.", ctx, 404, 1)
             ctx.response.ok(orderDetail)
         } catch (error) {
-            if (error instanceof (CustomException)) return
-            throw new CustomException(error.message || error, ctx, 500, 3)
+            return errorHandler(error, ctx)
         }
     }
 
@@ -73,10 +69,7 @@ export default class OrderDetailsController {
             const updatedOrderDetail = await OrderDetail.findByIdAndUpdate(id, { quantity }, { new: true, runValidators: true })
             ctx.response.created(updatedOrderDetail)
         } catch (error) {
-            if (error.messages && error.messages.errors) {
-                throw new CustomException(error.messages.errors[0].message, ctx, 400, 2)
-            }
-            throw new CustomException(error.message || error, ctx, 500, 3)
+            return errorHandler(error, ctx)
         }
     }
 
@@ -86,7 +79,7 @@ export default class OrderDetailsController {
             await OrderDetail.findByIdAndDelete(id)
             ctx.response.noContent()
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 }

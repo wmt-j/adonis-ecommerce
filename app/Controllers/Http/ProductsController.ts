@@ -1,22 +1,40 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import CustomException from 'App/Exceptions/CustomException'
+import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import Category from 'App/Models/CategoryModel'
 import Product from 'App/Models/ProductsModel'
 import slugify from 'slugify'
+import errorHandler from '../../utils/errorHandler'
+import CustomException from 'App/Exceptions/CustomException'
 
 export default class ProductsController {
     public async index(ctx: HttpContextContract) {
         try {
-            const products = await Product.find()
+            const products = await Product.find().populate('category')
             ctx.response.ok(products)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 
     public async store(ctx: HttpContextContract) {
         try {
-            const { name, price, description, discount, category } = ctx.request.body()
+            const newProductSchema = schema.create({
+                name: schema.string({ trim: true }, [rules.maxLength(50)]),
+                price: schema.number([rules.range(0, Number.MAX_VALUE)]),
+                description: schema.string({ trim: true }, [rules.maxLength(500)]),
+                discount: schema.number([rules.range(0, 100)]),
+                category: schema.string()
+            })
+            const payload = await ctx.request.validate({
+                schema: newProductSchema,
+                messages: {
+                    required: '{{field}} is required.',
+                    'name.maxLength': 'Name cannot exceed 50 characters.',
+                    'description.maxLength': 'Name cannot exceed 500 characters.',
+                    'discount': 'Discount should be in the range of {{options.start}} to {{options.end}}'
+                }
+            })
+            const { name, price, description, discount, category } = payload
             const productCategory = await Category.findOne({ name: slugify(category) })
             let newProductCategory = productCategory
             if (!productCategory) {
@@ -26,28 +44,46 @@ export default class ProductsController {
             const newProduct = await Product.create({ name, price, description, discount, category: newProductCategory?.id, seller })
             return ctx.response.created(newProduct)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 
     public async show(ctx: HttpContextContract) {
         try {
             const { id } = ctx.params
-            const product = await Product.findById(id)
+            const product = await Product.findById(id).populate('category').populate('seller')
+            if (!product) {
+                throw new CustomException("No product found", ctx, 404, 1)
+            }
             return ctx.response.ok(product)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 
     public async update(ctx: HttpContextContract) {
         try {
             const { id } = ctx.params
-            const { name, price, description, discount } = ctx.request.body()
+            const newProductSchema = schema.create({
+                name: schema.string({ trim: true }, [rules.maxLength(50)]),
+                price: schema.number([rules.range(0, Number.MAX_VALUE)]),
+                description: schema.string({ trim: true }, [rules.maxLength(500)]),
+                discount: schema.number([rules.range(0, 100)])
+            })
+            const payload = await ctx.request.validate({
+                schema: newProductSchema,
+                messages: {
+                    required: '{{field}} is required.',
+                    'name.maxLength': 'Name cannot exceed 50 characters.',
+                    'description.maxLength': 'Name cannot exceed 500 characters.',
+                    'discount': 'Discount should be in the range of {{options.start}} to {{options.end}}'
+                }
+            })
+            const { name, price, description, discount } = payload
             const updatedProduct = await Product.findByIdAndUpdate(id, { name, price, description, discount }, { new: true, runValidators: true })
             return ctx.response.created(updatedProduct)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 
@@ -57,7 +93,7 @@ export default class ProductsController {
             await Product.findByIdAndDelete(id)
             return ctx.response.noContent()
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 }

@@ -1,10 +1,9 @@
 Request validation.
-Make custom codes for error handling.
+Validate if no document related to provided id.
 Throw error when document not found.
 Extend error handling.
-Date, time fields in order model.
-Validate if no document related to provided id.
 Show MY orders/order-details/reviews.
+Test all routes.
 
 Error codes:-
 1: custom thrown error

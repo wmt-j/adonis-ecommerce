@@ -4,6 +4,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import CustomException from 'App/Exceptions/CustomException'
 import Product from 'App/Models/ProductsModel'
 import { IOrderDetail } from 'App/Interfaces/schemaInterfaces'
+import errorHandler from 'App/utils/errorHandler'
 
 export default class OrdersController {
     public async index(ctx: HttpContextContract) {
@@ -11,7 +12,8 @@ export default class OrdersController {
             const orders = await Order.find().sort({ ordered_at: -1 }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' }, select: 'quantity product_id' })
             ctx.response.ok(orders)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
+
         }
     }
 
@@ -32,7 +34,8 @@ export default class OrdersController {
             }
             ctx.response.created(newOrder)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
+
         }
     }
 
@@ -42,7 +45,8 @@ export default class OrdersController {
             const order = await Order.findById(id).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' } })
             ctx.response.created(order)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
+
         }
     }
 
@@ -53,7 +57,8 @@ export default class OrdersController {
             const updatedOrder = await Order.findByIdAndUpdate(id, { total, status }, { new: true, runValidators: true })
             ctx.response.created(updatedOrder)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
+
         }
     }
 
@@ -63,7 +68,8 @@ export default class OrdersController {
             await Order.findOneAndDelete({ _id: id, status: { $ne: 'delivered' } })
             ctx.response.noContent()
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
+
         }
     }
 
@@ -76,7 +82,8 @@ export default class OrdersController {
             }
             ctx.response.ok(placedOrder)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
+
         }
     }
 }

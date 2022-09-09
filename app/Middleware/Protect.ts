@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import Env from '@ioc:Adonis/Core/Env'
 import CustomException from 'App/Exceptions/CustomException'
 import { IUser } from 'App/Interfaces/schemaInterfaces'
+import errorHandler from 'App/utils/errorHandler'
 
 export default class Protect {
 
@@ -26,9 +27,9 @@ export default class Protect {
         ctx.user = { id: data.id, email: data.email, role: data.role }
         return await next()
       }
-      throw new Error("Signin required")
+      throw new CustomException("Signin required", ctx, 401, 1)
     } catch (error) {
-      throw new CustomException(error.message || error, ctx)
+      errorHandler(error, ctx)
     }
   }
 }

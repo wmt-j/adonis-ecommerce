@@ -7,6 +7,7 @@ import CustomException from 'App/Exceptions/CustomException'
 import { IUser } from 'App/Interfaces/schemaInterfaces'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Role from 'App/Models/RoleModel'
+import errorHandler from '../../utils/errorHandler'
 
 export default class AuthController {
     private jwtSignPromise(user: IUser) {
@@ -49,11 +50,7 @@ export default class AuthController {
             const token = await this.signToken(newUser, ctx)
             return ctx.response.created({ user: newUser, token })
         } catch (error) {
-            if (error instanceof (CustomException)) return
-            if (error.messages && error.messages.errors) {
-                throw new CustomException(error.messages.errors[0].message, ctx, 400, 2)
-            }
-            throw new CustomException(error.message || error, ctx, 500, 3)
+            return errorHandler(error, ctx)
         }
     }
 
@@ -81,11 +78,7 @@ export default class AuthController {
             const token = await this.signToken(user, ctx)
             return ctx.response.created({ user: user, token })
         } catch (error) {
-            if (error instanceof (CustomException)) return
-            if (error.messages && error.messages.errors) {
-                throw new CustomException(error.messages.errors[0].message, ctx, 400, 2)
-            }
-            throw new CustomException(error.message || error, ctx, 500, 3)
+            return errorHandler(error, ctx)
         }
     }
 }

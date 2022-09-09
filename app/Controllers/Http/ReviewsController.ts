@@ -1,5 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import Review from 'App/Models/ReviewModel'
+import errorHandler from '../../utils/errorHandler'
 import CustomException from 'App/Exceptions/CustomException'
 
 export default class ReviewsController {
@@ -8,18 +10,31 @@ export default class ReviewsController {
             const reviews = await Review.find()
             ctx.response.ok(reviews)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 
     public async store(ctx: HttpContextContract) {
         try {
-            const { rating, body, product_id } = ctx.request.body()
+            const newReviewSchema = schema.create({
+                rating: schema.number([rules.range(0, 5)]),
+                body: schema.string({ trim: true }, [rules.maxLength(100)]),
+                product_id: schema.string({}, [rules.isMongoId()])
+            })
+            const payload = await ctx.request.validate({
+                schema: newReviewSchema,
+                messages: {
+                    required: '{{field}} is required.',
+                    'rating.range': 'Rating must be between {{options.start}} and {{options.end}}.',
+                    'body.maxLength': 'Review should not exceed {{options.maxLength}}.'
+                }
+            })
+            const { rating, body, product_id } = payload
             const user_id = ctx.user?.id
             const newReview = await Review.create({ rating, body, product_id, user_id })
             return ctx.response.created(newReview)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 
@@ -27,20 +42,35 @@ export default class ReviewsController {
         try {
             const { id } = ctx.params
             const review = await Review.findById(id)
+            if (!review) {
+                throw new CustomException("Review not found", ctx, 404, 1)
+            }
             return ctx.response.ok(review)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 
     public async update(ctx: HttpContextContract) {
         try {
+            const newReviewSchema = schema.create({
+                rating: schema.number([rules.range(0, 5)]),
+                body: schema.string({ trim: true }, [rules.maxLength(100)]),
+            })
+            const payload = await ctx.request.validate({
+                schema: newReviewSchema,
+                messages: {
+                    required: '{{field}} is required.',
+                    'rating.range': 'Rating must be between {{options.start}} and {{options.end}}.',
+                    'body.maxLength': 'Review should not exceed {{options.maxLength}}.'
+                }
+            })
             const { id } = ctx.params
-            const { rating, body } = ctx.request.body()
+            const { rating, body } = payload
             const updatedReview = await Review.findByIdAndUpdate(id, { rating, body }, { new: true, runValidators: true })
             return ctx.response.created(updatedReview)
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 
@@ -50,7 +80,7 @@ export default class ReviewsController {
             await Review.findByIdAndDelete(id)
             return ctx.response.noContent()
         } catch (error) {
-            throw new CustomException(error.message || error, ctx)
+            return errorHandler(error, ctx)
         }
     }
 }
