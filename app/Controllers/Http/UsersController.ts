@@ -109,7 +109,7 @@ export default class UsersController {
 
     public async myOrders(ctx: HttpContextContract) {
         try {
-            const myOrders = await Order.find({ user_id: ctx.user?.id }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' }, select: 'quantity product_id' })
+            const myOrders = await Order.find({ user_id: ctx.user?.id }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name price discount' }, select: 'quantity product_id' })
             ctx.response.ok(myOrders)
         } catch (error) {
             return errorHandler(error, ctx)

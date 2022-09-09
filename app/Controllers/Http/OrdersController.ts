@@ -9,7 +9,7 @@ import errorHandler from 'App/utils/errorHandler'
 export default class OrdersController {
     public async index(ctx: HttpContextContract) {
         try {
-            const orders = await Order.find().sort({ ordered_at: -1 }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name' }, select: 'quantity product_id' })
+            const orders = await Order.find().sort({ ordered_at: -1 }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name price  discount' }, select: 'quantity product_id' })
             ctx.response.ok(orders)
         } catch (error) {
             return errorHandler(error, ctx)
@@ -94,5 +94,5 @@ export default class OrdersController {
         if (!order.total || !product.price) return
         order.total += (product.price * (1 - (product.discount as number / 100))) * quantity
         await order.save({ validateBeforeSave: false })
-    }
+    }   //price always increases, if quan. changed from 1 to 5 price increases by 5 instead of 4
 }

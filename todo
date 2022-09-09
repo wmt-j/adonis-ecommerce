@@ -1,6 +1,5 @@
 Extend error handling.
 Test all routes.
-Cascade on delete/on update.
 Check if document exists before relationship.
 Only use users with active:true.
 

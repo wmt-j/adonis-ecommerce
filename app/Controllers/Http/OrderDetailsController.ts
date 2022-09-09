@@ -68,7 +68,10 @@ export default class OrderDetailsController {
             const { id } = ctx.params
             const { quantity } = payload
             if (quantity < 1) return this.destroy(ctx)
-            const updatedOrderDetail = await OrderDetail.findByIdAndUpdate(id, { quantity }, { new: true, runValidators: true })
+            const updatedOrderDetail = await OrderDetail.findByIdAndUpdate(id, { quantity }, { runValidators: true })   //returns old order details, as we need old quantity
+            if (updatedOrderDetail?.order_id && updatedOrderDetail?.product_id && updatedOrderDetail?.quantity)
+                await OrdersController.updateTotal(updatedOrderDetail.order_id.toString(), quantity - updatedOrderDetail.quantity, updatedOrderDetail.product_id.toString(), ctx)
+            updatedOrderDetail!.quantity = quantity
             ctx.response.created(updatedOrderDetail)
         } catch (error) {
             return errorHandler(error, ctx)
@@ -78,7 +81,10 @@ export default class OrderDetailsController {
     public async destroy(ctx: HttpContextContract) {
         try {
             const { id } = ctx.params
-            await OrderDetail.findByIdAndDelete(id)
+            const deleteOrderDetail = await OrderDetail.findById(id)
+            if (deleteOrderDetail?.order_id && deleteOrderDetail?.product_id && deleteOrderDetail?.quantity)
+                await OrdersController.updateTotal(deleteOrderDetail?.order_id.toString(), -deleteOrderDetail?.quantity, deleteOrderDetail.product_id.toString(), ctx)
+            await deleteOrderDetail?.delete()
             ctx.response.noContent()
         } catch (error) {
             return errorHandler(error, ctx)
