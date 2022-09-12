@@ -5,13 +5,14 @@ import CustomException from 'App/Exceptions/CustomException'
 import Product from 'App/Models/ProductsModel'
 import { IOrderDetail } from 'App/Interfaces/schemaInterfaces'
 import errorHandler from 'App/utils/errorHandler'
+import paginate from 'App/utils/paginate'
 
 export default class OrdersController {
     public async index(ctx: HttpContextContract) {
         try {
             const { page = 1, limit = 10 } = ctx.request.qs()
-            const orders = await Order.find().sort({ ordered_at: -1 }).skip((page - 1) * limit).limit(limit).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name price  discount' }, select: 'quantity product_id' })
-            ctx.response.ok(orders)
+            const orders = Order.find().sort({ ordered_at: -1 }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name price  discount' }, select: 'quantity product_id' })
+            ctx.response.ok(await paginate(orders, page, limit))
         } catch (error) {
             return errorHandler(error, ctx)
         }
@@ -93,7 +94,7 @@ export default class OrdersController {
         const product = await Product.findById(product_id)
         if (!order || !product) throw new CustomException("Failed to add Product", ctx, 404, 1)
         if (!order.total || !product.price) return
-        order.total += (product.price * (1 - (product.discount as number / 100))) * quantity
+        order.total += (product.total || 0) * quantity
         await order.save({ validateBeforeSave: false })
     }   //price always increases, if quan. changed from 1 to 5 price increases by 5 instead of 4
 }

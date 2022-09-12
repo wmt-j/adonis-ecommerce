@@ -6,13 +6,14 @@ import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import errorHandler from '../../utils/errorHandler'
 import OrdersController from './OrdersController'
 import Product from 'App/Models/ProductsModel'
+import paginate from 'App/utils/paginate'
 
 export default class OrderDetailsController {
     public async index(ctx: HttpContextContract) {
         try {
             const { page = 1, limit = 10 } = ctx.request.qs()
-            const orderDetails = await OrderDetail.find().skip((page - 1) * limit).limit(limit)
-            ctx.response.ok(orderDetails)
+            const orderDetails = OrderDetail.find()
+            ctx.response.ok(await paginate(orderDetails, page, limit))
         } catch (error) {
             return errorHandler(error, ctx)
         }

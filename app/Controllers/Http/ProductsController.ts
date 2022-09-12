@@ -5,15 +5,16 @@ import Product from 'App/Models/ProductsModel'
 import slugify from 'slugify'
 import errorHandler from '../../utils/errorHandler'
 import CustomException from 'App/Exceptions/CustomException'
+import paginate from 'App/utils/paginate'
 
 export default class ProductsController {
     public async index(ctx: HttpContextContract) {
         try {
             const { s = "", page = 1, limit = 10, price = 1, createdAt = 1 } = ctx.request.qs()
-            const products = await Product.find({
+            const products = Product.find({
                 name: { $regex: s || "", $options: 'i' }
-            }).sort({ price }).sort({ createdAt }).limit(limit).skip((page - 1) * limit).populate('category')
-            ctx.response.ok(products)
+            }).sort({ total: price }).sort({ createdAt }).populate('category')
+            ctx.response.ok(await paginate(products, page, limit))
         } catch (error) {
             return errorHandler(error, ctx)
         }

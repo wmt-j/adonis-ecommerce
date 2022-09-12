@@ -7,13 +7,14 @@ import Review from 'App/Models/ReviewModel'
 import Role from 'App/Models/RoleModel'
 import User from 'App/Models/UserModel'
 import errorHandler from 'App/utils/errorHandler'
+import paginate from 'App/utils/paginate'
 
 export default class UsersController {
     public async index(ctx: HttpContextContract) {
         try {
             const { page = 1, limit = 10 } = ctx.request.qs()
-            const users = await User.find().skip((page - 1) * limit).limit(limit).populate('role')
-            return ctx.response.ok(users)
+            const users = User.find().populate('role')
+            return ctx.response.ok(await paginate(users, page, limit))
         } catch (error) {
             return errorHandler(error, ctx)
         }

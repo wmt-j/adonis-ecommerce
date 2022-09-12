@@ -29,11 +29,28 @@ const productSchema = new mongoose.Schema<IProduct>({
         type: mongoose.Types.ObjectId,
         ref: 'Category',
         required: true
+    },
+    total: {
+        type: Number,
+        default: function () {
+            return (this.price || 0) * (1 - (this.discount || 0) / 100)
+        }
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now()
     }
 })
 
-productSchema.virtual('total').get(function (): number {
-    return (this.price || 0) * (1 - (this.discount || 0))
+// productSchema.virtual('total').get(function (): number {    //cannot sort by virtual fields
+//     return (this.price || 0) * (1 - (this.discount || 0) / 100)
+// })
+
+productSchema.pre('findOneAndUpdate', async function (next) {
+    const product = await this.findOne().clone()
+    product.total = (product.price || 0) * (1 - (product.discount || 0) / 100)
+    await product.save()
+    next()
 })
 
 const Product = mongoose.model('Product', productSchema)

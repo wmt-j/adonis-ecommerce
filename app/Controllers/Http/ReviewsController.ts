@@ -4,13 +4,14 @@ import Review from 'App/Models/ReviewModel'
 import errorHandler from '../../utils/errorHandler'
 import CustomException from 'App/Exceptions/CustomException'
 import Product from 'App/Models/ProductsModel'
+import paginate from 'App/utils/paginate'
 
 export default class ReviewsController {
     public async index(ctx: HttpContextContract) {
         try {
             const { page = 1, limit = 10 } = ctx.request.qs()
-            const reviews = await Review.find().skip((page - 1) * limit).limit(limit)
-            ctx.response.ok(reviews)
+            const reviews = Review.find()
+            ctx.response.ok(await paginate(reviews, page, limit))
         } catch (error) {
             return errorHandler(error, ctx)
         }
