@@ -20,6 +20,7 @@ export interface IProduct {
     description?: string
     seller?: mongoose.Types.ObjectId
     category?: mongoose.Types.ObjectId
+    total?: number
 }
 
 export interface ICategory {

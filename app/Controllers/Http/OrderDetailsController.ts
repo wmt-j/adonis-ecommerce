@@ -10,7 +10,8 @@ import Product from 'App/Models/ProductsModel'
 export default class OrderDetailsController {
     public async index(ctx: HttpContextContract) {
         try {
-            const orderDetails = await OrderDetail.find()
+            const { page = 1, limit = 10 } = ctx.request.qs()
+            const orderDetails = await OrderDetail.find().skip((page - 1) * limit).limit(limit)
             ctx.response.ok(orderDetails)
         } catch (error) {
             return errorHandler(error, ctx)

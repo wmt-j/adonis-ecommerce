@@ -8,7 +8,8 @@ import Product from 'App/Models/ProductsModel'
 export default class ReviewsController {
     public async index(ctx: HttpContextContract) {
         try {
-            const reviews = await Review.find()
+            const { page = 1, limit = 10 } = ctx.request.qs()
+            const reviews = await Review.find().skip((page - 1) * limit).limit(limit)
             ctx.response.ok(reviews)
         } catch (error) {
             return errorHandler(error, ctx)

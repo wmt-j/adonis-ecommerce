@@ -32,6 +32,10 @@ const productSchema = new mongoose.Schema<IProduct>({
     }
 })
 
+productSchema.virtual('total').get(function (): number {
+    return (this.price || 0) * (1 - (this.discount || 0))
+})
+
 const Product = mongoose.model('Product', productSchema)
 
 export default Product

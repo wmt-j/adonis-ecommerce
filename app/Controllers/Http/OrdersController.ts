@@ -9,7 +9,8 @@ import errorHandler from 'App/utils/errorHandler'
 export default class OrdersController {
     public async index(ctx: HttpContextContract) {
         try {
-            const orders = await Order.find().sort({ ordered_at: -1 }).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name price  discount' }, select: 'quantity product_id' })
+            const { page = 1, limit = 10 } = ctx.request.qs()
+            const orders = await Order.find().sort({ ordered_at: -1 }).skip((page - 1) * limit).limit(limit).populate({ path: 'order_details', populate: { path: 'product_id', select: 'name price  discount' }, select: 'quantity product_id' })
             ctx.response.ok(orders)
         } catch (error) {
             return errorHandler(error, ctx)

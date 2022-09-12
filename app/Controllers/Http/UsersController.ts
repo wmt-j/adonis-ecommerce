@@ -11,7 +11,8 @@ import errorHandler from 'App/utils/errorHandler'
 export default class UsersController {
     public async index(ctx: HttpContextContract) {
         try {
-            const users = await User.find().populate('role')
+            const { page = 1, limit = 10 } = ctx.request.qs()
+            const users = await User.find().skip((page - 1) * limit).limit(limit).populate('role')
             return ctx.response.ok(users)
         } catch (error) {
             return errorHandler(error, ctx)

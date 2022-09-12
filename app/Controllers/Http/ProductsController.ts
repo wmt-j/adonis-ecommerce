@@ -9,7 +9,10 @@ import CustomException from 'App/Exceptions/CustomException'
 export default class ProductsController {
     public async index(ctx: HttpContextContract) {
         try {
-            const products = await Product.find().populate('category')
+            const { s = "", page = 1, limit = 10, price = 1, createdAt = 1 } = ctx.request.qs()
+            const products = await Product.find({
+                name: { $regex: s || "", $options: 'i' }
+            }).sort({ price }).sort({ createdAt }).limit(limit).skip((page - 1) * limit).populate('category')
             ctx.response.ok(products)
         } catch (error) {
             return errorHandler(error, ctx)

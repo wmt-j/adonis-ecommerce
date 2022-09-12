@@ -1,8 +1,1 @@
-Extend error handling.
-Test all routes.
-Only use users with active:true.
-
-Error codes:-
-1: custom thrown error
-2: system thrown, expected, adonis validation error
-3: system thrown, unexpected
+update order total when product price or discount updated.
