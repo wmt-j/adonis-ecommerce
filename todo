@@ -1,1 +1,2 @@
 update order total when product price or discount updated.
+merge order details with same product_id and user_id.

@@ -25,6 +25,7 @@ import './routes/auth'
 import './routes/review'
 import './routes/orderDetail'
 import './routes/order'
+import './routes/supplier'
 
 //Mongodb connects in custom created preloaded file, start/MongooseConnection.ts
 

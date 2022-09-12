@@ -6,6 +6,7 @@ import slugify from 'slugify'
 import errorHandler from '../../utils/errorHandler'
 import CustomException from 'App/Exceptions/CustomException'
 import paginate from 'App/utils/paginate'
+import User from 'App/Models/UserModel'
 
 export default class ProductsController {
     public async index(ctx: HttpContextContract) {
@@ -46,7 +47,8 @@ export default class ProductsController {
             if (!productCategory) {
                 newProductCategory = await Category.create({ name: category })
             }
-            const seller = ctx.user?.id
+            const user = await User.findById(ctx.user?.id)
+            const seller = user?.supplier_id
             const newProduct = await Product.create({ name, price, description, discount, category: newProductCategory?.id, seller })
             return ctx.response.created(newProduct)
         } catch (error) {

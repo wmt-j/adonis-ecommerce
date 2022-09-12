@@ -27,7 +27,7 @@ export default class Protect {
         const data = await this.jwtVerifyPromise(token, Env.get('JWT_SECRET')) as IUser
         const user = await User.findOne({ _id: data.id, active: true })
         if (!user) throw new CustomException("User does not exist", ctx, 404, 1)
-        ctx.user = { id: data.id, email: data.email, role: data.role }
+        ctx.user = { id: data.id, email: data.email }
         return await next()
       }
       throw new CustomException("Signin required", ctx, 401, 1)

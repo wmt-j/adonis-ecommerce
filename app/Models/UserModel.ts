@@ -3,7 +3,7 @@ import mongoose from "mongoose"
 import bcrypt from 'bcrypt'
 import Review from "./ReviewModel"
 import Order from "./OrderModel"
-import Product from "./ProductsModel"
+import Supplier from "./SupplierModel"
 
 const userSchema = new mongoose.Schema<IUser>({
     name: {
@@ -38,10 +38,15 @@ const userSchema = new mongoose.Schema<IUser>({
     address: {
         type: String,
         trim: true
+    },
+    supplier_id: {
+        type: mongoose.Types.ObjectId,
+        ref: "Supplier"
     }
 })
 
 userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next()
     if (this.password)
         this.password = await bcrypt.hash(this.password, 12)
     this.password_confirm = ""
@@ -52,15 +57,19 @@ userSchema.pre('save', async function (next) {
 userSchema.post('findOneAndUpdate', async function () {
     try {
         const updatedUser = await this.findOne().clone()
-        if (updatedUser.active === false) {
+        if (!updatedUser) return
+        updatedUser.seller_id = null
+        if (updatedUser && updatedUser.active === false) {
+            // updatedUser.save({ validateBeforeSave: false })
             // await Review.deleteMany({ user_id: updatedUser.id })
             // await Order.deleteMany({ user_id: updatedUser.id })
-            // await Product.deleteMany({ seller: updatedUser.id })
+            // Supplier.deleteOne({ user_id: updatedUser.id })
 
             await Promise.all([     //faster
+                updatedUser.save({ validateBeforeSave: false }),
                 Review.deleteMany({ user_id: updatedUser.id }),
                 Order.deleteMany({ user_id: updatedUser.id }),
-                Product.deleteMany({ seller: updatedUser.id })
+                Supplier.deleteOne({ user_id: updatedUser.id })
             ])
         }
 

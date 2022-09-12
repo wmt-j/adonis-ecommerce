@@ -11,6 +11,7 @@ export interface IUser {
     phone?: number
     address?: string
     order_id?: mongoose.Types.ObjectId
+    supplier_id?: mongoose.Types.ObjectId
 }
 
 export interface IProduct {
@@ -50,5 +51,11 @@ export interface IReview {
     rating?: number,
     body?: string,
     product_id?: mongoose.Types.ObjectId
+    user_id?: mongoose.Types.ObjectId
+}
+
+export interface ISuppplier {
+    name?: string,
+    website?: string,
     user_id?: mongoose.Types.ObjectId
 }

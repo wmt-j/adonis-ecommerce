@@ -12,7 +12,7 @@ import errorHandler from '../../utils/errorHandler'
 export default class AuthController {
     private jwtSignPromise(user: IUser) {
         return new Promise((resolve, reject) => {
-            jwt.sign({ id: user.id, email: user.email, role: user.role }, Env.get('JWT_SECRET'), function (err: Error, token: string) {
+            jwt.sign({ id: user.id, email: user.email }, Env.get('JWT_SECRET'), function (err: Error, token: string) {
                 if (err) { return reject(err) }
                 return resolve(token)
             })
