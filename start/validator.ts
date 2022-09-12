@@ -16,7 +16,6 @@ validator.rule('isMongoId', (value, _, options) => {
     }
 
     const objIdString = new mongoose.Types.ObjectId(value)
-    console.log(options);
 
     if (value !== objIdString.toString()) {
         options.errorReporter.report(

@@ -3,6 +3,7 @@ import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import Review from 'App/Models/ReviewModel'
 import errorHandler from '../../utils/errorHandler'
 import CustomException from 'App/Exceptions/CustomException'
+import Product from 'App/Models/ProductsModel'
 
 export default class ReviewsController {
     public async index(ctx: HttpContextContract) {
@@ -30,6 +31,8 @@ export default class ReviewsController {
                 }
             })
             const { rating, body, product_id } = payload
+            const product = await Product.findById(product_id)
+            if (!product) throw new CustomException("Product does not exist", ctx, 404, 1)
             const user_id = ctx.user?.id
             const newReview = await Review.create({ rating, body, product_id, user_id })
             return ctx.response.created(newReview)

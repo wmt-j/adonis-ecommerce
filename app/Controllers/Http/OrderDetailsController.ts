@@ -5,6 +5,7 @@ import Order from 'App/Models/OrderModel'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import errorHandler from '../../utils/errorHandler'
 import OrdersController from './OrdersController'
+import Product from 'App/Models/ProductsModel'
 
 export default class OrderDetailsController {
     public async index(ctx: HttpContextContract) {
@@ -30,6 +31,8 @@ export default class OrderDetailsController {
                 }
             })
             const { quantity, product_id } = payload
+            const product = await Product.findById(product_id)
+            if (!product) throw new CustomException("Product does not exist", ctx, 404, 1)
             let pendingOrder = await Order.findOne({ status: "pending" })
             if (!pendingOrder) {
                 pendingOrder = await Order.create({ user_id: ctx.user?.id })

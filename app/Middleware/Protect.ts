@@ -4,6 +4,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import CustomException from 'App/Exceptions/CustomException'
 import { IUser } from 'App/Interfaces/schemaInterfaces'
 import errorHandler from 'App/utils/errorHandler'
+import User from 'App/Models/UserModel'
 
 export default class Protect {
 
@@ -24,6 +25,8 @@ export default class Protect {
       const token = ctx.request.headers().authorization?.split('Bearer ')[1]
       if (token) {
         const data = await this.jwtVerifyPromise(token, Env.get('JWT_SECRET')) as IUser
+        const user = await User.findOne({ _id: data.id, active: true })
+        if (!user) throw new CustomException("User does not exist", ctx, 404, 1)
         ctx.user = { id: data.id, email: data.email, role: data.role }
         return await next()
       }
