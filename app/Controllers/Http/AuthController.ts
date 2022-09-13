@@ -93,4 +93,56 @@ export default class AuthController {
             return errorHandler(error, ctx)
         }
     }
+
+    public async signinGoogle(ctx: HttpContextContract) {
+        try {
+            const { token } = ctx.request.body()
+            const user = await ctx.ally.use('google').userFromToken(token)
+            const findUser = await User.findOne({ email: user.email })
+            //signup or signin
+            if (!findUser) {
+                const userRole = await Role.findOne({ name: 'customer' })
+                const newUser = await User.create({ name: user.name, email: user.email, role: userRole })
+                const token = await this.signToken(newUser, ctx)
+                return ctx.response.created({ user: newUser, token })
+            }
+            else {
+                const token = await this.signToken(findUser, ctx)
+                return ctx.response.created({ user: findUser, token })
+            }
+        } catch (error) {
+            return errorHandler(error, ctx)
+        }
+    }
+
+    public async getAccessTokenGoogle(ctx: HttpContextContract) {
+        return ctx.ally.use('google').redirect()
+    }
+
+    public async callbackGoogle(ctx: HttpContextContract) {
+        const google = ctx.ally.use('google')
+        if (google.accessDenied()) {
+            return 'Access was denied'
+        }
+
+        /**
+         * Unable to verify the CSRF state
+         */
+        if (google.stateMisMatch()) {
+            return 'Request expired. Retry again'
+        }
+
+        /**
+         * There was an unknown error during the redirect
+         */
+        if (google.hasError()) {
+            return google.getError()
+        }
+
+        /**
+         * Finally, access the user
+         */
+        const user = await google.user()
+        return ctx.response.json(user)
+    }
 }

@@ -20,11 +20,9 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     password: {
         type: String,
-        required: true
     },
     password_confirm: {
         type: String,
-        required: true
     },
     active: {
         type: Boolean,

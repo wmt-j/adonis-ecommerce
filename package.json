@@ -55,6 +55,7 @@
     "youch-terminal": "^2.1.5"
   },
   "dependencies": {
+    "@adonisjs/ally": "^4.1.4",
     "@adonisjs/core": "^5.8.6",
     "@adonisjs/repl": "^3.1.11",
     "bcrypt": "^5.0.1",
