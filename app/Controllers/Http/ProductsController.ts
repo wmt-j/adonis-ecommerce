@@ -59,7 +59,7 @@ export default class ProductsController {
     public async show(ctx: HttpContextContract) {
         try {
             const { id } = ctx.params
-            const product = await Product.findById(id).populate('category').populate('seller')
+            const product = await Product.findById(id).populate('category').populate('seller').populate('reviews')
             if (!product) {
                 throw new CustomException("No product found", ctx, 404, 1)
             }

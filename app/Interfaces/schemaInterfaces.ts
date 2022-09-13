@@ -22,7 +22,10 @@ export interface IProduct {
     seller?: mongoose.Types.ObjectId
     category?: mongoose.Types.ObjectId
     total?: number,
-    createdAt?: Date
+    createdAt?: Date,
+    avgRating?: number
+    noOfRatings?: number
+    updateRatings: Function
 }
 
 export interface ICategory {

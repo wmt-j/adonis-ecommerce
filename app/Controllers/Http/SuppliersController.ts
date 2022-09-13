@@ -4,6 +4,7 @@ import Supplier from 'App/Models/SupplierModel'
 import User from 'App/Models/UserModel'
 import errorHandler from 'App/utils/errorHandler'
 import CustomException from 'App/Exceptions/CustomException'
+import Product from 'App/Models/ProductsModel'
 
 export default class SuppliersController {
     public async index(ctx: HttpContextContract) {
@@ -53,6 +54,16 @@ export default class SuppliersController {
             const { id } = ctx.params
             await Supplier.findByIdAndDelete(id)
             ctx.response.noContent()
+        } catch (error) {
+            return errorHandler(error, ctx)
+        }
+    }
+
+    public async myProducts(ctx: HttpContextContract) {
+        try {
+            const user = await User.findById(ctx.user?.id)
+            const products = await Product.find({ seller: user?.supplier_id }).populate('reviews')
+            ctx.response.ok(products)
         } catch (error) {
             return errorHandler(error, ctx)
         }

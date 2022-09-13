@@ -22,7 +22,7 @@ const productSchema = new mongoose.Schema<IProduct>({
     },
     seller: {
         type: mongoose.Types.ObjectId,
-        ref: 'User',
+        ref: 'Supplier',
         required: true
     },
     category: {
@@ -39,8 +39,47 @@ const productSchema = new mongoose.Schema<IProduct>({
     createdAt: {
         type: Date,
         default: Date.now()
+    },
+    avgRating: {
+        type: Number,
+        min: 0,
+        max: 5,
+        default: 0
+    },
+    noOfRatings: {
+        type: Number,
+        default: 0
+    }
+}, {
+    toJSON: {
+        virtuals: true
     }
 })
+
+productSchema.virtual('reviews', {
+    ref: 'Review',
+    localField: '_id',
+    foreignField: 'product_id'
+})
+
+productSchema.methods.updateRatings = async function (cb: Function, ratingAdded: number, ratingRemoved?: number) {
+    try {
+        if (ratingAdded > 0)    //Review created / pre update
+            this.avgRating = (this.avgRating * this.noOfRatings + ratingAdded) / (++this.noOfRatings)
+        if (ratingRemoved) {    //Review deleted / post update
+            if (this.noOfRatings > 1)
+                this.avgRating = (this.noOfRatings * this.avgRating - ratingRemoved) / (--this.noOfRatings)
+            else {
+                this.noOfRatings = 0
+                this.avgRating = 0
+            }
+        }
+        await this.save()
+        cb(this)
+    } catch (error) {
+        cb(null, error)
+    }
+}
 
 // productSchema.virtual('total').get(function (): number {    //cannot sort by virtual fields
 //     return (this.price || 0) * (1 - (this.discount || 0) / 100)
