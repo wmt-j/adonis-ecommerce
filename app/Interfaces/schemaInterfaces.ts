@@ -12,6 +12,7 @@ export interface IUser {
     address?: string
     order_id?: mongoose.Types.ObjectId
     supplier_id?: mongoose.Types.ObjectId
+    googleToken?: String
 }
 
 export interface IProduct {

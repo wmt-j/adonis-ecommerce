@@ -1,3 +1,2 @@
 update order total when product price or discount updated.
 merge quantity in order details with same product_id and user_id.
-check delete user route.

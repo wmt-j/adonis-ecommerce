@@ -97,14 +97,14 @@ export default class AuthController {
     public async signinGoogle(ctx: HttpContextContract) {
         try {
             const { token } = ctx.request.body()
-            const user = await ctx.ally.use('google').userFromToken(token)
+            const user = await ctx.ally.use('google').userFromToken(token)  //contacts google api, requires internet
             const findUser = await User.findOne({ email: user.email })
-            //signup or signin
+            if (!findUser?.active) throw new CustomException("User does not exist", ctx, 404, 1)
             if (!findUser) {
                 const userRole = await Role.findOne({ name: 'customer' })
-                const newUser = await User.create({ name: user.name, email: user.email, role: userRole })
-                const token = await this.signToken(newUser, ctx)
-                return ctx.response.created({ user: newUser, token })
+                const newUser = await User.create({ name: user.name, email: user.email, role: userRole, googleToken: token })
+                const jwtToken = await this.signToken(newUser, ctx)
+                return ctx.response.created({ user: newUser, token: jwtToken })
             }
             else {
                 const token = await this.signToken(findUser, ctx)
@@ -114,6 +114,8 @@ export default class AuthController {
             return errorHandler(error, ctx)
         }
     }
+
+    //requires browser to get access token(frontend routes)
 
     public async getAccessTokenGoogle(ctx: HttpContextContract) {
         return ctx.ally.use('google').redirect()

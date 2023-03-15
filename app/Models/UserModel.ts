@@ -40,7 +40,8 @@ const userSchema = new mongoose.Schema<IUser>({
     supplier_id: {
         type: mongoose.Types.ObjectId,
         ref: "Supplier"
-    }
+    },
+    googleToken: String
 })
 
 userSchema.pre('save', async function (next) {
